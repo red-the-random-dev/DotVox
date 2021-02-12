@@ -165,9 +165,9 @@ namespace DotVox.Speaker
 			}
 		}
 		
-		static void UpdateConsoleTitle(Byte octave = 5, Int32 position = 0)
+		static void UpdateConsoleTitle(Byte octave = 5, Int32 position = 0, Boolean harmonic = false)
 		{
-			Console.Title = String.Format("DotVox Speaker == Position: {0}, Octave: {1}", position, octave);
+			Console.Title = String.Format("DotVox Speaker == Position: {0}, Octave: {1}, Mode: {2}", position, octave, (harmonic ? "Harmonic" : "Phonetic"));
 		}
 		
 		[STAThread]
@@ -177,7 +177,9 @@ namespace DotVox.Speaker
 			Int32 Position = 0;
 			Byte CurrentOctave = 4;
 			Boolean Uninterrupted = true;
+			Boolean Harmonic = false;
 			List<TactUnit> Tacts = new List<TactUnit>();
+			Queue<Char> InitialEntries = new Queue<char>();
 			
 			ConsoleColor DefaultTextColor = Console.ForegroundColor;
 			ConsoleColor DefaultBackgroundColor = Console.BackgroundColor;
@@ -185,25 +187,51 @@ namespace DotVox.Speaker
 			Console.BackgroundColor = ConsoleColor.White;
 			Console.ForegroundColor = ConsoleColor.Black;
 			
+			if (args.Length >= 1)
+			{
+				foreach (Char i in args[0])
+				{
+					InitialEntries.Enqueue(i);
+				}
+			}
+			
 			for (int i = 0; i < 12; i++)
 			{
+				if (i == 1 || i == 3 || i == 6 || i == 8 || i == 10)
+				{
+					Console.BackgroundColor = DefaultBackgroundColor;
+					Console.ForegroundColor = DefaultTextColor;
+				}
+				else
+				{
+					Console.BackgroundColor = ConsoleColor.White;
+					Console.ForegroundColor = ConsoleColor.Black;
+				}
+				
 				Console.Write(Notes.StringForm((Note) i, 4));
-				Console.Write("  ");
+				Console.BackgroundColor = ConsoleColor.White;
+				Console.ForegroundColor = ConsoleColor.Black;
+				Console.Write(" ");
 			}
 			Console.Write("\n");
+			List<Char> InputStack = new List<Char>();
 			
 			Console.BackgroundColor = DefaultBackgroundColor;
 			Console.ForegroundColor = DefaultTextColor;
 			
 			while (Uninterrupted)
 			{
-				UpdateConsoleTitle(CurrentOctave, Position);
+				UpdateConsoleTitle(CurrentOctave, Position, Harmonic);
 				
-				ConsoleKeyInfo cki = Console.ReadKey(true);
-				switch (cki.KeyChar)
+				Char cki = (InitialEntries.Count > 0 ? InitialEntries.Dequeue() : Console.ReadKey(true).KeyChar);
+				if (cki != '\r' && cki != '\n' && cki != 'r' && cki != '	' && cki != 'z')
+				{
+					InputStack.Add(cki);
+				}
+				switch (cki)
 				{
 					case ' ':
-						Console.Write("___");
+						Console.Write("____");
 						Console.Write(" ");
 						Tacts.Add(new TactUnit(0.125));
 						break;
@@ -263,14 +291,111 @@ namespace DotVox.Speaker
 						}
 						break;
 					}
+					case 'r':
+					{
+						if (Position > 0)
+						{
+							List<TactUnit> tu = new List<TactUnit>();
+							
+							for (int i = 0; i < Position-1; i++)
+							{
+								tu.Add(Tacts[i]);
+							}
+							Tacts.Clear();
+							
+							foreach (TactUnit x in tu)
+							{
+								Tacts.Add(x);
+							}
+							
+							Int32 CharsEnlisted = InputStack.Count;
+							Int32 CutHere = CharsEnlisted;
+							while (CutHere > 0)
+							{
+								Char last = InputStack[CutHere-1];
+								Boolean pop = false;
+								switch (last)
+								{
+									case ',':
+										if (CurrentOctave < 9)
+										{
+											CurrentOctave += 1;
+										}
+										CutHere--;
+										break;
+									case '.':
+										if (CurrentOctave > 4)
+										{
+											CurrentOctave -= 1;
+										}
+										CutHere--;
+										break;
+									case '~':
+										Harmonic = false;
+										CutHere--;
+										break;
+									case 'v':
+										Harmonic = true;
+										CutHere--;
+										break;
+									default:
+										pop = true;
+										CutHere--;
+										break;
+								}
+								if (pop)
+								{
+									break;
+								}
+							}
+							if (CharsEnlisted > 0)
+							{
+								List<Char> cl = new List<char>();
+								for (int i = 0; i < CutHere; i++)
+								{
+									cl.Add(InputStack[i]);
+								}
+								
+								InputStack.Clear();
+								
+								foreach (Char i in cl)
+								{
+									InputStack.Add(i);
+								}
+							}
+							
+							if (Console.CursorLeft == 0)
+							{
+								Console.CursorTop -= 1;
+								Console.CursorLeft = 75;
+							}
+							else
+							{
+								Console.CursorLeft -= 5;
+							}
+							Console.Write("     ");
+							Console.CursorLeft -= 5;
+						}
+						break;
+					}
+					case '`':
+					{
+						Harmonic = true;
+						break;
+					}
+					case 'v':
+					{
+						Harmonic = false;
+						break;
+					}
 					default:
 					{
-						Int32 x = GetNoteFromChar(cki.KeyChar);
+						Int32 x = GetNoteFromChar(cki);
 						if (x != -1)
 						{
 							Note a = (Note) x;
-							Console.Write(Notes.StringForm(a, CurrentOctave));
-							TactUnit tact = new TactUnit(Phonemes.Get("AH", a, CurrentOctave, 64, 44100), 0.125);
+							Console.Write("{0}{1}", (Harmonic ? "~" : "-") , Notes.StringForm(a, CurrentOctave));
+							TactUnit tact = new TactUnit(Phonemes.Get((Harmonic ? "~~" : "AH"), a, CurrentOctave, 64, 44100), 0.125);
 							Tacts.Add(tact);
 							// QuickPlay(tact);
 							Console.Write(" ");
@@ -285,6 +410,12 @@ namespace DotVox.Speaker
 				}
 			}
 			Console.Title = DefaultConsoleTitle;
+			foreach (Char i in InputStack)
+			{
+				Console.Write(i);
+			}
+			Console.WriteLine();
+			Console.ReadLine();
 		}
 	}
 }

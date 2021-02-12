@@ -84,7 +84,7 @@ namespace DotVox.Vocalization
 						return cw;
 					}
 				#endregion
-				#region Consonants: /N, ...
+				#region Consonants: /N, /G
 				case "/N":
 					{
 						UInt32 newFreq = (frequency * 3) / 4;
@@ -104,6 +104,11 @@ namespace DotVox.Vocalization
 						return cw;
 					}
 				#endregion
+				case "~~":
+					{
+						Oscillation a1 = new Oscillation(frequency, volume, WaveType.Sine, SampleRate);
+						return new ConjoinedWave(new Oscillation[] {a1}, new UInt32[] {a1.Lambda});
+					}
 				default:
 					return null;
 			}
