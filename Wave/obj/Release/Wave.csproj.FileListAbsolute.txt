@@ -1,3 +1,0 @@
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Wave\bin\Release\DotVox.Wave.dll
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Wave\obj\Release\Wave.csprojResolveAssemblyReference.cache
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Wave\obj\Release\DotVox.Wave.dll
