@@ -1,5 +1,0 @@
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Release\Speaker.exe
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Release\DotVox.Wave.dll
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Release\DoxVox.Vocalization.dll
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\obj\Release\Speaker.csprojResolveAssemblyReference.cache
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\obj\Release\Speaker.exe

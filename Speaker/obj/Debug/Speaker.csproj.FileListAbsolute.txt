@@ -1,9 +1,0 @@
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\obj\Debug\Speaker.csprojResolveAssemblyReference.cache
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Debug\Speaker.exe
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Debug\Speaker.pdb
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\obj\Debug\Speaker.exe
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\obj\Debug\Speaker.pdb
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Debug\DotVox.Wave.dll
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Debug\DotVox.Wave.pdb
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Debug\DoxVox.Vocalization.dll
-C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Speaker\bin\Debug\DoxVox.Vocalization.pdb
