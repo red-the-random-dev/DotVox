@@ -13,6 +13,9 @@ Controls for Speaker.exe:
 * ENTER       -- compile note sequence into .WAV file.
 * 1...0, -, = -- add one of notes into the chain. (1 -- C, 2 -- C#/Db, etc.)
 * < >         -- switch octave. (Min: 4, Max: 9)
+* \`          -- activate harmonic mode
+* V           -- activate phonetic mode
+* R           -- remove last tact from the chain
 * Z           -- exit program.
 
 (C) 2021 red-the-random-dev
