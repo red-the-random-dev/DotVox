@@ -1,0 +1,4 @@
+C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Vocalization\bin\Release\DoxVox.Vocalization.dll
+C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Vocalization\bin\Release\DotVox.Wave.dll
+C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Vocalization\obj\Release\Vocalization.csprojResolveAssemblyReference.cache
+C:\Users\Lenovo Yoga\Documents\SharpDevelop Projects\DotVox\Vocalization\obj\Release\DoxVox.Vocalization.dll
