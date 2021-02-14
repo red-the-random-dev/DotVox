@@ -63,66 +63,69 @@ namespace DotVox.Wave
 		}
 	}
 	
+	
+	/// <summary>
+	/// Struct for description WAV file header.
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	// Структура, описывающая заголовок WAV файла.
+	[Serializable]
 	public class WaveHeader
 	{
 		// RIFF header
 		public UInt32 ChunkId = 0x52494646;
 
-		// 36 + subchunk2Size, или более точно:
+		// 36 + subchunk2Size, or:
 		// 4 + (8 + subchunk1Size) + (8 + subchunk2Size)
-		// Это оставшийся размер цепочки, начиная с этой позиции.
-		// Иначе говоря, это размер файла - 8, то есть,
-		// исключены поля chunkId и chunkSize.
+		// Remaining chain length counted from this position.
+		// In fact it is file_size - 8,
+		// (with RIFF header excluded)
 		public UInt32 ChunkSize;
 
-		// Содержит символы "WAVE"
-		// (0x57415645 в big-endian представлении)
+		// "WAVE" in ASCII encoding
+		// (0x57415645 in big-endian interpretation)
 		public UInt32 Format = 0x57415645;
 	
-		// Формат "WAVE" состоит из двух подцепочек: "fmt " и "data":
-		// Подцепочка "fmt " описывает формат звуковых данных:
+		// WAVE format consists of two chains: "fmt " and "data":
+		// Chain "fmt " describes format of encoded audio:
 	
-		// Содержит символы "fmt "
-		// (0x666d7420 в big-endian представлении)
+		// Contains "fmt " symbols
+		// (0x666d7420 in big-endian interpretation)
 		public UInt32 Subchunk1Id = 0x666d7420;
 		
-		// 16 для формата PCM.
-		// Это оставшийся размер подцепочки, начиная с этой позиции.
+		// Remaining size of chain counted down from this position.
 		public UInt32 Subchunk1Size = 16;
 
-		// Аудио формат, полный список можно получить здесь http://audiocoding.ru/wav_formats.txt
-		// Для PCM = 1 (то есть, Линейное квантование).
-		// Значения, отличающиеся от 1, обозначают некоторый формат сжатия.
+		// Audio format
+		// For PCM = 1
+		// Values different from 1 signify the compression.
 		public UInt16 AudioFormat = 1;
 	
-		// Количество каналов. Моно = 1, Стерео = 2 и т.д.
+		// Amount of channels.
 		public UInt16 NumChannels = 1;
 
-		// Частота дискретизации. 8000 Гц, 44100 Гц и т.д.
+		// Sampling rate.
 		public UInt32 SampleRate = 44100;
 
 		// sampleRate * numChannels * bitsPerSample/8
 		public UInt32 ByteRate = 44100;
 
 		// numChannels * bitsPerSample/8
-		// Количество байт для одного сэмпла, включая все каналы.
+		// Amount of bytes for single sample.
 		public UInt16 BlockAlign = 1;
 
-		// Так называемая "глубиная" или точность звучания. 8 бит, 16 бит и т.д.
+		// Depth of sound (8 bits, 16 bits, ...)
 		public UInt16 BitsPerSample = 8;
 
-		// Подцепочка "data" содержит аудио-данные и их размер.
+		// Chain "data" contains audio data and info about its length.
 
-		// Содержит символы "data"
-		// (0x64617461 в big-endian представлении)
+		// "data" in ASCII
+		// (0x64617461 in big-endian interpretation)
 		public UInt32 Subchunk2Id = 0x64617461;
 
 		// numSamples * numChannels * bitsPerSample/8
-		// Количество байт в области данных.
+		// Amount of bytes in data scope.
 		public UInt32 Subchunk2Size;
 
-		// Далее следуют непосредственно Wav данные.
+		// Further file contains audio wave peaks.
 	}
 }

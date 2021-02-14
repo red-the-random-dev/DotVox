@@ -35,5 +35,10 @@ namespace DotVox.Vocalization
 		{
 			return String.Format("{0}{1}", NoteStrings[(Int32) note], octave);
 		}
+		
+		public static String StringForm(Note note)
+		{
+			return NoteStrings[(Int32) note];
+		}
 	}
 }

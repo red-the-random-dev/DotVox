@@ -14,6 +14,7 @@ namespace DotVox.Wave
 	/// <summary>
 	/// Class that conjoins several waves together.
 	/// </summary>
+	[Serializable]
 	public class Polyphony : ITimedWaveArray
 	{
 		public List<ITimedWave> WaveSet = new List<ITimedWave>();

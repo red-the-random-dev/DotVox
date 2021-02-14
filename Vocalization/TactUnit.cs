@@ -7,19 +7,68 @@ using DotVox.Wave;
 namespace DotVox.Vocalization
 {
 	/// <summary>
-	/// Description of TactUnit.
+	/// Wave object with specified start offset.
 	/// </summary>
+	[Serializable]
+	public struct OffsetGenerator : ITimedWave
+	{
+		Double offset;
+		ITimedWave internalWave;
+		
+		public Double DeltaTime
+		{
+			get
+			{
+				return internalWave.DeltaTime;
+			}
+		}
+		
+		public Byte this[Double TimeStamp]
+		{
+			get
+			{
+				return internalWave[TimeStamp+offset];
+			}
+		}
+		
+		public Double Offset
+		{
+			get
+			{
+				return offset;
+			}
+			set
+			{
+				offset = value;
+			}
+		}
+		
+		public OffsetGenerator(ITimedWave wave, Double startOffset)
+		{
+			internalWave = wave;
+			offset = startOffset;
+		}
+	}
+	
+	/// <summary>
+	/// Wave object carrier with specified play time limit. Designed for use with DotVox.Wave.Sequencer.
+	/// </summary>
+	[Serializable]
 	public struct TactUnit : IEquatable<TactUnit>, IWaveExtract
 	{
 		ITimedWave in_wave;
+		Double beginningOffset;
 		Double playtime;
 		Boolean blank;
+		UInt32 frequency;
 		
 		public TactUnit(ITimedWave sound, Double timing)
 		{
 			in_wave = sound;
 			playtime = timing;
 			blank = false;
+			frequency = 0;
+			beginningOffset = 0.0;
 		}
 		
 		public TactUnit(Double timing)
@@ -27,6 +76,8 @@ namespace DotVox.Vocalization
 			in_wave = new Oscillation(1, 0, WaveType.Sine, 800);
 			playtime = timing;
 			blank = true;
+			frequency = 1;
+			beginningOffset = 0.0;
 		}
 		
 		public TactUnit(String phoneme, Note note, Byte octave, Double timing, UInt32 sampleRate = 44100, SByte amplitude = 64)
@@ -34,6 +85,16 @@ namespace DotVox.Vocalization
 			in_wave = Phonemes.Get(phoneme, note, octave, amplitude, sampleRate);
 			playtime = timing;
 			blank = false;
+			frequency = Notes.Get(note, octave);
+			beginningOffset = 0.0;
+		}
+		
+		public UInt32 Frequency
+		{
+			get
+			{
+				return frequency;
+			}
 		}
 		
 		public Boolean Blank
@@ -48,7 +109,7 @@ namespace DotVox.Vocalization
 		{
 			get
 			{
-				return in_wave;
+				return new OffsetGenerator(in_wave, beginningOffset);
 			}
 		}
 		public Double PlayTime
@@ -56,6 +117,17 @@ namespace DotVox.Vocalization
 			get
 			{
 				return playtime;
+			}
+		}
+		public Double BeginningOffset
+		{
+			get
+			{
+				return beginningOffset;
+			}
+			set
+			{
+				beginningOffset = value;
 			}
 		}
 		
@@ -86,7 +158,7 @@ namespace DotVox.Vocalization
 		public bool Equals(TactUnit other)
 		{
 			// add comparisions for all members here
-			return this.playtime == other.playtime;
+			return (this.playtime == other.playtime && (this.frequency == other.frequency && this.frequency != 0) && this.blank != other.blank);
 		}
 		
 		public override int GetHashCode()

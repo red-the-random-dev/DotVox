@@ -42,8 +42,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmplifiedWave.cs" />
     <Compile Include="ConjoinedWave.cs" />
     <Compile Include="I_TimedWaves.cs" />
+    <Compile Include="Mixer.cs" />
     <Compile Include="Oscillation.cs" />
     <Compile Include="Polyphony.cs" />
     <Compile Include="Sequencer.cs" />

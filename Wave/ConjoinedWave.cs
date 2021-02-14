@@ -9,6 +9,7 @@ namespace DotVox.Wave
 	/// <summary>
 	/// Consecutive array of waves.
 	/// </summary>
+	[Serializable]
 	public class ConjoinedWave : ITimedWave
 	{
 		Double dTime = 1.0;

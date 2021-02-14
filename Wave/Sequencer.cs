@@ -39,8 +39,9 @@ namespace DotVox.Wave
 	}
 	
 	/// <summary>
-	/// Linear sample array.
+	/// Linear sample array that can be exported into binary stream.
 	/// </summary>
+	[Serializable]
 	public class Sequencer : ITimedWaveArray, IWaveArrayExtract
 	{
 		/// <summary>

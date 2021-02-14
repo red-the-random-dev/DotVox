@@ -15,6 +15,7 @@ namespace DotVox.Wave
 	/// <summary>
 	/// Harmonic audio oscillation.
 	/// </summary>
+	[Serializable]
 	public class Oscillation : ITimedWave
 	{
 		public UInt32 Frequency;
@@ -94,6 +95,22 @@ namespace DotVox.Wave
 						return ((Byte) Math.Round(Math.Sin(TimeStamp * Math.PI * this.Frequency * 2) * this.Amplitude + 128));
 					case WaveType.Square:
 						return ((Byte) ((((TimeStamp * SampleRate % Lambda) <= (Lambda / 2)) ? ((Int16) this.Amplitude) : ((Int16) (0 - this.Amplitude))) + 128));
+					case WaveType.Triangle:
+					{
+						Int64 point = ((Int64) Math.Round(TimeStamp / DeltaTime)) % Lambda;
+						Int64 quarterPeriod = ((Int64) (Lambda / 4));
+						Int64 halfPeriod = ((Int64) (Lambda / 2));
+						
+						Int64 distanceFromHalf = ((Int64) Math.Abs(point - halfPeriod));
+						Int64 distanceFromQuarter = ((Int64) (((Int64) (quarterPeriod)) - distanceFromHalf));
+						Double relativeDistance = (1.0 * distanceFromQuarter) / quarterPeriod;
+						return ((Byte) (Math.Round(relativeDistance * Amplitude) + 128));
+					}
+					case WaveType.Pulse:
+					{
+						Int64 point = ((Int64) Math.Round(TimeStamp / DeltaTime)) % Lambda;
+						return ((Byte) (point == 0 ? (Amplitude+128) : 128));
+					}
 					default:
 						return 0;
 				}
