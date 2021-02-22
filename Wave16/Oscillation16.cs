@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace DotVox.Wave
+namespace DotVox.Wave16
 {
 	public enum WaveType { Sine, Square, Triangle, Pulse };
 	
@@ -11,7 +11,7 @@ namespace DotVox.Wave
 	/// Harmonic audio oscillation.
 	/// </summary>
 	[Serializable]
-	public class Oscillation : ITimedWave
+	public class Oscillation16 : ITimedWave16
 	{
 		UInt32 freq;
 		public UInt32 Frequency
@@ -32,7 +32,7 @@ namespace DotVox.Wave
 				freq = value;
 			}
 		}
-		public SByte Amplitude;
+		public Int16 Amplitude;
 		public WaveType WaveMode;
 		public readonly UInt32 SampleRate;
 		
@@ -43,7 +43,7 @@ namespace DotVox.Wave
 		/// <param name="amplitude">The volume of the wave at its peak.</param>
 		/// <param name="mode">One of available wave generation modes: sine, square, triangle or simple pulses.</param>
 		/// <param name="samplerate">Amount of bytes in one second.</param>
-		public Oscillation(UInt32 frequency, SByte amplitude = 127, WaveType mode = WaveType.Sine, UInt32 samplerate = 44100)
+		public Oscillation16(UInt32 frequency, Int16 amplitude = 127, WaveType mode = WaveType.Sine, UInt32 samplerate = 44100)
 		{
 			this.SampleRate = samplerate;
 			this.Frequency = frequency;
@@ -87,16 +87,16 @@ namespace DotVox.Wave
 		/// <summary>
 		/// Receive 8-bit sample on given timestamp.
 		/// </summary>
-		public Byte this[Double TimeStamp]
+		public Int16 this[Double TimeStamp]
 		{
 			get
 			{
 				switch (this.WaveMode)
 				{
 					case WaveType.Sine:
-						return ((Byte) Math.Round(Math.Sin(TimeStamp * Math.PI * this.Frequency * 2) * this.Amplitude + 128));
+						return ((Int16) Math.Round(Math.Sin(TimeStamp * Math.PI * this.Frequency * 2) * this.Amplitude));
 					case WaveType.Square:
-						return ((Byte) ((((TimeStamp * SampleRate % Lambda) <= (Lambda / 2)) ? ((Int16) this.Amplitude) : ((Int16) (0 - this.Amplitude))) + 128));
+						return (((TimeStamp * SampleRate % Lambda) <= (Lambda / 2)) ? ((Int16) this.Amplitude) : ((Int16) (0 - this.Amplitude)));
 					case WaveType.Triangle:
 					{
 						Int64 point = ((Int64) Math.Round(TimeStamp / DeltaTime)) % Lambda;
@@ -106,12 +106,12 @@ namespace DotVox.Wave
 						Int64 distanceFromHalf = ((Int64) Math.Abs(point - halfPeriod));
 						Int64 distanceFromQuarter = ((Int64) (((Int64) (quarterPeriod)) - distanceFromHalf));
 						Double relativeDistance = (1.0 * distanceFromQuarter) / quarterPeriod;
-						return ((Byte) (Math.Round(relativeDistance * Amplitude) + 128));
+						return ((Int16) (Math.Round(relativeDistance * Amplitude)));
 					}
 					case WaveType.Pulse:
 					{
 						Int64 point = ((Int64) Math.Round(TimeStamp / DeltaTime)) % Lambda;
-						return ((Byte) (point == 0 ? (Amplitude+128) : 128));
+						return ((Int16) (point == 0 ? (this.Amplitude) : 0));
 					}
 					default:
 						return 0;

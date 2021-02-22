@@ -7,8 +7,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("DotVox Wave Library")]
-[assembly: AssemblyDescription ("Library designed for generating and modifying mathematic waves, as well as dumping wave sequences into files.")]
+[assembly: AssemblyTitle ("DotVox Depth Resampling Library")]
+[assembly: AssemblyDescription ("Library for converting 8-bit waves to 16-bit waves and vice versa.")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("red-the-random-dev")]
 [assembly: AssemblyProduct ("DotVox")]
@@ -26,4 +26,3 @@ using System.Runtime.InteropServices;
 // Build Numbers by using the '*' as shown below:
 [assembly: AssemblyVersion ("0.3.1")]
 [assembly: AssemblyFileVersion ("0.3.1")]
-[assembly: Guid ("ca9fecc4-4753-43da-9a44-4337d04294ac")]

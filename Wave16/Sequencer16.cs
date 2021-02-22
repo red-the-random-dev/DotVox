@@ -5,18 +5,19 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace DotVox.Wave
+namespace DotVox.Wave16
 {
-	public static partial class WaveFormatter
+	public static partial class WaveFormatter16
 	{
-		public static WaveHeader GetSequencerHeader(Sequencer x)
+		public static WaveHeader GetSequencerHeader(Sequencer16 x)
 		{
 			WaveHeader fileData = new WaveHeader();
-			fileData.BlockAlign = x.ChannelAmount;
+			fileData.BitsPerSample = 16;
+			fileData.BlockAlign = ((UInt16) (x.ChannelAmount * 2));
 			fileData.NumChannels = x.ChannelAmount;
 			fileData.SampleRate = x.SampleRate;
-			fileData.ByteRate = ((UInt32) (x.SampleRate * x.ChannelAmount));
-			fileData.Subchunk2Size = ((UInt32) (x.Length * x.ChannelAmount));
+			fileData.ByteRate = ((UInt32) (x.SampleRate * x.ChannelAmount * 2));
+			fileData.Subchunk2Size = ((UInt32) (x.Length * x.ChannelAmount * 2));
 			fileData.ChunkSize = 36 + fileData.Subchunk2Size;
 			return fileData;
 		}
@@ -26,14 +27,17 @@ namespace DotVox.Wave
 		/// </summary>
 		/// <param name="x">Sequencer to pick data from.</param>
 		/// <param name="target">Target stream.</param>
-		public static void WriteSequenceToFile(Sequencer x, Stream target)
+		public static void WriteSequenceToFile(Sequencer16 x, Stream target)
 		{
 			WaveHeader fileData = GetSequencerHeader(x);
 			BinaryWriter bw = new BinaryWriter(target);
 			bw.Write(FormBinaryHeader(fileData));
-			foreach (Byte[] i in x.Unload())
+			foreach (Int16[] i in x.Unload())
 			{
-				bw.Write(i);
+				foreach (Int16 i_ in i)
+				{
+					bw.Write(BitConverter.GetBytes(i_));
+				}
 			}
 		}
 	}
@@ -42,7 +46,7 @@ namespace DotVox.Wave
 	/// Linear sample array that can be exported into binary stream.
 	/// </summary>
 	[Serializable]
-	public class Sequencer : ITimedWaveArray, IWaveArrayExtract
+	public class Sequencer16 : ITimedWaveArray16, IWaveArrayExtract16
 	{
 		/// <summary>
 		/// Resembles read-only stream with sequencer's data.
@@ -50,7 +54,7 @@ namespace DotVox.Wave
 		public class SequencerStream : Stream
 		{
 			Int64 Pointer = 0;
-			List<Byte> InternalBuffer = new List<byte>();
+			List<Byte> InternalBuffer = new List<Byte>();
 			
 			public override Boolean CanWrite
 			{
@@ -139,28 +143,30 @@ namespace DotVox.Wave
 				}
 			}
 			
-			public SequencerStream(Sequencer target)
+			public SequencerStream(Sequencer16 target)
 			{
-				foreach (Byte x in WaveFormatter.FormBinaryHeader(WaveFormatter.GetSequencerHeader(target)))
+				foreach (Byte x in WaveFormatter16.FormBinaryHeader(WaveFormatter16.GetSequencerHeader(target)))
 				{
 					InternalBuffer.Add(x);
 				}
 				
-				foreach (Byte[] a in target.Unload())
+				foreach (Int16[] a in target.Unload())
 				{
-					foreach (Byte b in a)
+					foreach (Int16 b in a)
 					{
-						InternalBuffer.Add(b);
+						Byte[] tr = BitConverter.GetBytes(b);
+						InternalBuffer.Add(tr[0]);
+						InternalBuffer.Add(tr[1]);
 					}
 				}
 			}
 		}
 		
-		List<Byte[]> Track = new List<Byte[]>();
+		List<Int16[]> Track = new List<Int16[]>();
 		public readonly UInt32 SampleRate;
 		public readonly UInt16 ChannelAmount;
 		
-		public ITimedWaveArray WaveArray
+		public ITimedWaveArray16 WaveArray
 		{
 			get
 			{
@@ -203,7 +209,7 @@ namespace DotVox.Wave
 			}
 		}
 		
-		public Byte[] this[Double TimeStamp]
+		public Int16[] this[Double TimeStamp]
 		{
 			get
 			{
@@ -215,13 +221,13 @@ namespace DotVox.Wave
 			}
 		}
 		
-		public Sequencer(UInt16 channelAmount, UInt32 sampleRate = 44100)
+		public Sequencer16(UInt16 channelAmount, UInt32 sampleRate = 44100)
 		{
 			SampleRate = sampleRate;
 			ChannelAmount = channelAmount;
 		}
 		
-		public void Push(ITimedWave i, Double time)
+		public void Push(ITimedWave16 i, Double time)
 		{
 			if (ChannelAmount != 1)
 			{
@@ -230,11 +236,11 @@ namespace DotVox.Wave
 			
 			for (Double x = 0; x < time; x += DeltaTime)
 			{
-				Track.Add(new Byte[] {i[x]});
+				Track.Add(new Int16[] {i[x]});
 			}
 		}
 		
-		public void Push(ITimedWave[] i, Double Time)
+		public void Push(ITimedWave16[] i, Double Time)
 		{
 			if (i.Length != ChannelAmount)
 			{
@@ -243,7 +249,7 @@ namespace DotVox.Wave
 			
 			for (Double x = 0; x < Time; x += DeltaTime)
 			{
-				Byte[] newBuffer = new Byte[i.Length];
+				Int16[] newBuffer = new Int16[i.Length];
 				for (int j = 0; j < i.Length; j++)
 				{
 					newBuffer[j] = i[j][x];
@@ -252,7 +258,7 @@ namespace DotVox.Wave
 			}
 		}
 		
-		public void Push(IWaveExtract i)
+		public void Push(IWaveExtract16 i)
 		{
 			if (!i.Blank)
 			{
@@ -264,17 +270,17 @@ namespace DotVox.Wave
 			}
 		}
 		
-		public void Push(IWaveArrayExtract i)
+		public void Push(IWaveArrayExtract16 i)
 		{
 			Push(i.WaveArray, i.PlayTime);
 		}
 		
-		public void Push(ITimedWaveArray i, Double Time)
+		public void Push(ITimedWaveArray16 i, Double Time)
 		{
 			
 			for (Double x = 0; x < Time; x += DeltaTime)
 			{
-				Byte[] newBuffer = i[x];
+				Int16[] newBuffer = i[x];
 				if (newBuffer.Length != ChannelAmount)
 				{
 					throw new ArgumentException("Attempted to push data from source with different channel amount.");
@@ -284,17 +290,17 @@ namespace DotVox.Wave
 			}
 		}
 		
-		public void Push(Byte i)
+		public void Push(Int16 i)
 		{
 			if (ChannelAmount != 1)
 			{
 				throw new ArgumentException("Used sequencer instance does not support single-channel inputs.");
 			}
 			
-			Track.Add(new byte[] {i});
+			Track.Add(new Int16[] {i});
 		}
 		
-		public void Push(Byte[] i)
+		public void Push(Int16[] i)
 		{
 			if (i.Length != ChannelAmount)
 			{
@@ -308,16 +314,16 @@ namespace DotVox.Wave
 		{
 			for (Double x = 0; x < Time; x += DeltaTime)
 			{
-				Byte[] newBuffer = new Byte[ChannelAmount];
+				Int16[] newBuffer = new Int16[ChannelAmount];
 				for (int i = 0; i < newBuffer.Length; i++)
 				{
-					newBuffer[i] = 128;
+					newBuffer[i] = 0;
 				}
 				Track.Add(newBuffer);
 			}
 		}
 		
-		public Byte[][] Unload()
+		public Int16[][] Unload()
 		{
 			return Track.ToArray();
 		}

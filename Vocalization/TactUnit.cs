@@ -61,10 +61,28 @@ namespace DotVox.Vocalization
 		Double playtime;
 		Boolean blank;
 		UInt32 frequency;
+		String phoneme;
+		
+		public UInt32 Frequency
+		{
+			get
+			{
+				return Frequency;
+			}
+		}
+		
+		public String Phoneme
+		{
+			get
+			{
+				return phoneme;
+			}
+		}
 		
 		public TactUnit(ITimedWave sound, Double timing)
 		{
 			in_wave = sound;
+			phoneme = null;
 			playtime = timing;
 			blank = false;
 			frequency = 0;
@@ -75,26 +93,20 @@ namespace DotVox.Vocalization
 		{
 			in_wave = new Oscillation(1, 0, WaveType.Sine, 800);
 			playtime = timing;
+			phoneme = null;
 			blank = true;
 			frequency = 1;
 			beginningOffset = 0.0;
 		}
 		
-		public TactUnit(String phoneme, Note note, Byte octave, Double timing, UInt32 sampleRate = 44100, SByte amplitude = 64)
+		public TactUnit(String phonemeString, Note note, Byte octave, Double timing, UInt32 sampleRate = 44100, SByte amplitude = 64)
 		{
-			in_wave = Phonemes.Get(phoneme, note, octave, amplitude, sampleRate);
+			in_wave = Phonemes.Get(phonemeString, note, octave, amplitude, sampleRate);
+			phoneme = phonemeString;
 			playtime = timing;
 			blank = false;
 			frequency = Notes.Get(note, octave);
 			beginningOffset = 0.0;
-		}
-		
-		public UInt32 Frequency
-		{
-			get
-			{
-				return frequency;
-			}
 		}
 		
 		public Boolean Blank
@@ -158,7 +170,7 @@ namespace DotVox.Vocalization
 		public bool Equals(TactUnit other)
 		{
 			// add comparisions for all members here
-			return (this.playtime == other.playtime && (this.frequency == other.frequency && this.frequency != 0) && this.blank != other.blank);
+			return (this.playtime == other.playtime && (this.frequency == other.frequency && this.frequency != 0) && this.blank == other.blank && this.Phoneme == other.Phoneme);
 		}
 		
 		public override int GetHashCode()

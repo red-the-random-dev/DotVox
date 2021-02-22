@@ -305,7 +305,7 @@ namespace DotVox.Speaker
 						{
 							Note a = (Note) x;
 							Console.Write("{0}{1}", (Harmonic ? (Square ? "+" : "~") : "-") , Notes.StringForm(a, CurrentOctave));
-							TactUnit tact = new TactUnit(new AmplifiedWave(Phonemes.Get((Harmonic ? (Square ? "__" : "~~") : "AH"), a, CurrentOctave, 64, 44100), 0.25), 0.125);
+							TactUnit tact = new TactUnit(new AmplifiedWave(Phonemes.Get((Harmonic ? (Square ? "__" : "AH") : "/R"), a, CurrentOctave, 64, 44100), 0.75), 0.125);
 							if (Position > 1)
 							{
 								if (Tacts[Position-1].Frequency == tact.Frequency)

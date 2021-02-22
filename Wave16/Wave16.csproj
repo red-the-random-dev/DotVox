@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{81F4C432-0137-4557-999E-64BCE4CE4E73}</ProjectGuid>
+    <ProjectGuid>{B4BA9C34-91C3-4052-8F5F-7EEF225D437E}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>DotVox.Wave</RootNamespace>
-    <AssemblyName>DotVox.Wave</AssemblyName>
+    <RootNamespace>DotVox.Wave16</RootNamespace>
+    <AssemblyName>DotVox.Wave16</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -42,15 +42,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AmplifiedWave.cs" />
-    <Compile Include="VerticalCompressor.cs" />
-    <Compile Include="ConjoinedWave.cs" />
-    <Compile Include="I_TimedWaves.cs" />
-    <Compile Include="Mixer.cs" />
-    <Compile Include="Oscillation.cs" />
-    <Compile Include="Polyphony.cs" />
-    <Compile Include="Sequencer.cs" />
-    <Compile Include="Transition.cs" />
+    <Compile Include="AmplifiedWave16.cs" />
+    <Compile Include="VerticalCompressor16.cs" />
+    <Compile Include="ConjoinedWave16.cs" />
+    <Compile Include="I_TimedWaves16.cs" />
+    <Compile Include="Mixer16.cs" />
+    <Compile Include="Oscillation16.cs" />
+    <Compile Include="Polyphony16.cs" />
+    <Compile Include="Sequencer16.cs" />
+    <Compile Include="Transition16.cs" />
     <Compile Include="WaveHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
