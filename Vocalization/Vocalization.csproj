@@ -46,6 +46,7 @@
     <Compile Include="Phonemes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TactUnit.cs" />
+    <Compile Include="Tone.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Wave\Wave.csproj">

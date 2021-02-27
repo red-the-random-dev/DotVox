@@ -25,6 +25,10 @@ namespace DotVox.Vocalization
 			{
 				frequency *= 2;
 			}
+			else if (phoneme == "/R")
+			{
+				frequency = frequency * 3 / 2;
+			}
 			
 			switch (phoneme)
 			{
@@ -198,7 +202,7 @@ namespace DotVox.Vocalization
 						return cw;
 					}
 				#endregion
-				#region Voiced consonants: /R, /N, /G
+				#region Voiced consonants: /R, /L, /W, /N, /G
 				case "/R":
 					{
 						UInt32 doubleFrequency = frequency * 2;
@@ -216,7 +220,23 @@ namespace DotVox.Vocalization
 						Oscillation a8 = new Oscillation(frequency, ((SByte) (0 - volume)), WaveType.Sine, SampleRate);
 						Oscillation a9 = new Oscillation(halfFrequency, ((SByte) (0 - quarterAmplitude)), WaveType.Sine, SampleRate);
 						
-						ConjoinedWave cw = new ConjoinedWave(new Oscillation[] {a1, a1, a2, a3, a4, a5, a1, a6, a7, a5, a7, a8, a1, a1, a9, a5, a5}, new UInt32[] {a1.Lambda / 2, a1.Lambda / 2, a2.Lambda / 2, a3.Lambda / 2, a4.Lambda / 2, a5.Lambda / 2, a1.Lambda / 2, a6.Lambda / 2, a7.Lambda / 2, a5.Lambda / 2, a7.Lambda / 2, a8.Lambda / 2, a1.Lambda / 2, a1.Lambda / 2, a9.Lambda / 2, a5.Lambda / 2, a5.Lambda});
+						VerticalCompressor x1 = new VerticalCompressor(a1, 32.0);
+						VerticalCompressor x2 = new VerticalCompressor(a2, 32.0);
+						VerticalCompressor x3 = new VerticalCompressor(a3, 32.0);
+						VerticalCompressor x4 = new VerticalCompressor(a4, 32.0);
+						
+						ConjoinedWave cw = new ConjoinedWave(new ITimedWave[] {x1, x1, x2, x3, x4, a5, x1, a6, a7, a5, a7, a8, x1, x1, a9, a5, a5}, new UInt32[] {a1.Lambda / 2, a1.Lambda / 2, a2.Lambda / 2, a3.Lambda / 2, a4.Lambda / 2, a5.Lambda / 2, a1.Lambda / 2, a6.Lambda / 2, a7.Lambda / 2, a5.Lambda / 2, a7.Lambda / 2, a8.Lambda / 2, a1.Lambda / 2, a1.Lambda / 2, a9.Lambda / 2, a5.Lambda / 2, a5.Lambda});
+						return cw;
+					}
+				case "/L":
+					{
+						SByte halfAmplitude = ((SByte) (volume / 2));
+						
+						Oscillation a1 = new Oscillation(frequency, volume, WaveType.Sine, SampleRate);
+						Oscillation a2 = new Oscillation(frequency, halfAmplitude, WaveType.Sine, SampleRate);
+						Oscillation a3 = new Oscillation(frequency, ((SByte) (0 - volume)), WaveType.Sine, SampleRate);
+						
+						ConjoinedWave cw = new ConjoinedWave(new Oscillation[] {a1, a2, a3, a2, a3}, new UInt32[] {a1.Lambda, a2.Lambda / 2, a3.Lambda / 2, a2.Lambda / 2, a3.Lambda});
 						return cw;
 					}
 				case "/N":
@@ -236,7 +256,10 @@ namespace DotVox.Vocalization
 						Oscillation a1 = new Oscillation(newFreq, ((SByte) (0 - newVolume)), WaveType.Sine, SampleRate);
 						Oscillation a2 = new Oscillation(newFreq, 0, WaveType.Sine, SampleRate);
 						Oscillation a3 = new Oscillation(newFreq, newVolume, WaveType.Sine, SampleRate);
-						ConjoinedWave cw = new ConjoinedWave(new Oscillation[] {a1, a2, a3, a3, a3, a2, a3, a3, a3, a3, a2, a1, a1, a2, a3, a3, a3, a2}, new UInt32[] {(a1.Lambda / 2), (a2.Lambda * 2), (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), a2.Lambda, (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), (a2.Lambda * 2), (a1.Lambda / 2), (a1.Lambda / 2), (a2.Lambda * 2), (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), (a2.Lambda * 48)});
+						VerticalCompressor x1 = new VerticalCompressor(a1, 32.0);
+						VerticalCompressor x2 = new VerticalCompressor(a2, 32.0);
+						VerticalCompressor x3 = new VerticalCompressor(a3, 32.0);
+						ConjoinedWave cw = new ConjoinedWave(new ITimedWave[] {x1, x2, x3, x3, x3, x2, x3, x3, x3, x3, x2, x1, x1, x2, x3, x3, x3, x2}, new UInt32[] {(a1.Lambda / 2), (a2.Lambda * 2), (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), a2.Lambda, (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), (a2.Lambda * 2), (a1.Lambda / 2), (a1.Lambda / 2), (a2.Lambda * 2), (a3.Lambda / 2), (a3.Lambda / 2), (a3.Lambda / 2), (a2.Lambda * 24)});
 						return cw;
 					}
 				
@@ -306,6 +329,11 @@ namespace DotVox.Vocalization
 		public static ConjoinedWave Get(String phoneme, Note note = Note.C, Byte octave = 5, SByte volume = 96, UInt32 SampleRate = 44100)
 		{
 			return Get(phoneme, Notes.Get(note, octave), volume, SampleRate);
+		}
+		
+		public static ConjoinedWave Get(String phoneme, Tone tone, SByte volume = 96, UInt32 SampleRate = 44100)
+		{
+			return Get(phoneme, tone.Frequency, volume, 44100);
 		}
 	}
 }

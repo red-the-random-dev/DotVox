@@ -14,6 +14,11 @@ namespace DotVox.Wave
 	public class Oscillation : ITimedWave
 	{
 		UInt32 freq;
+		/// <summary>
+		/// Returns or declares frequency of the wave.
+		/// </summary>
+		/// <exception cref="System.ArgumentOutOfRangeException">Received value is larger than half of sample rate.</exception>
+		/// <exception cref="System.ArithmeticException">Attempted to set frequency to 0. Hint: to create flat line, set amplitude to 0 instead.</exception>
 		public UInt32 Frequency
 		{
 			get
@@ -26,7 +31,11 @@ namespace DotVox.Wave
 				{
 					if (value > (SampleRate / 2))
 					{
-						throw new ArgumentOutOfRangeException("Received frequency value that does not fit into estabilished sample rate.");
+						throw new ArgumentOutOfRangeException("value", "Received frequency value that does not fit into estabilished sample rate.");
+					}
+					else if (value == 0)
+					{
+						throw new ArithmeticException("Attempted to create a wave with zero frequency.");
 					}
 				}
 				freq = value;
@@ -45,6 +54,11 @@ namespace DotVox.Wave
 		/// <param name="samplerate">Amount of bytes in one second.</param>
 		public Oscillation(UInt32 frequency, SByte amplitude = 127, WaveType mode = WaveType.Sine, UInt32 samplerate = 44100)
 		{
+			if (samplerate == 0)
+			{
+				throw new ArithmeticException("Received zero value for sample rate.");
+			}
+			
 			this.SampleRate = samplerate;
 			this.Frequency = frequency;
 			this.Amplitude = amplitude;

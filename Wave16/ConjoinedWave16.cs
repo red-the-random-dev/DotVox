@@ -60,7 +60,7 @@ namespace DotVox.Wave16
 			}
 		}
 		
-		ITimedWave16 PickElement(UInt32 Tick, ref UInt32 RelativeTick)
+		ITimedWave16 PickElement(UInt64 Tick, ref UInt64 RelativeTick)
 		{
 			for (Int32 i = 0; i < AbsoluteLambdaReferences.Length-1; i++)
 			{
@@ -70,12 +70,12 @@ namespace DotVox.Wave16
 					return this.WaveArray[i];
 				}
 			}
-			throw new ArgumentOutOfRangeException("Could not find fitting wave on given lambda segment.");
+			throw new ArgumentOutOfRangeException("Tick", "Could not find fitting wave on given lambda segment.");
 		}
 		
-		Int16 ReceiveVoltage(UInt32 Tick)
+		Int16 ReceiveVoltage(UInt64 Tick)
 		{
-			UInt32 RelativeTick = 0;
+			UInt64 RelativeTick = 0;
 			ITimedWave16 x = PickElement(Tick, ref RelativeTick);
 			return x[RelativeTick * DeltaTime];
 		}
@@ -87,7 +87,7 @@ namespace DotVox.Wave16
 		{
 			get
 			{
-				UInt32 Tick = ((UInt32) (Math.Round(TimeStamp / DeltaTime) % PeriodLength));
+				UInt64 Tick = ((UInt64) ((Math.Round(TimeStamp / DeltaTime)) % PeriodLength));
 				return ReceiveVoltage(Tick);
 			}
 		}

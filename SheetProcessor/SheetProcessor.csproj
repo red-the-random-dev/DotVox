@@ -1,17 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{6DE8A65C-A501-42A8-84A6-7A511694C816}</ProjectGuid>
+    <ProjectGuid>{9745E0CC-01FF-4E7A-A89F-1DE93FCAA032}</ProjectGuid>
     <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Exe</OutputType>
-    <RootNamespace>DotVox.Voxel</RootNamespace>
-    <AssemblyName>voxel</AssemblyName>
+    <RootNamespace>DotVox.SheetProcessor</RootNamespace>
+    <AssemblyName>sheetprc</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -23,6 +22,8 @@
     <Optimize>False</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+    <StartArguments>"test.cns"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -31,8 +32,6 @@
     <Optimize>True</Optimize>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
-    <StartAction>Project</StartAction>
-    <StartArguments>-speed "64" -wav "test.wav" "IXUH. AH/R. /NIH/GAE/R"</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp">
@@ -59,13 +58,17 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Vocalization\Vocalization.csproj">
-      <Project>{3f9383b3-392e-4992-b617-4baf0b69667f}</Project>
-      <Name>Vocalization</Name>
+    <ProjectReference Include="..\Composition16\Composition16.csproj">
+      <Project>{e37aeba0-affb-4a6f-b1ee-32173e642a83}</Project>
+      <Name>Composition16</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Wave\Wave.csproj">
-      <Project>{81f4c432-0137-4557-999e-64bce4ce4e73}</Project>
-      <Name>Wave</Name>
+    <ProjectReference Include="..\Riffs16\Riffs16.csproj">
+      <Project>{a0c8adfa-35f7-4182-8d7e-269e83d40309}</Project>
+      <Name>Riffs16</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wave16\Wave16.csproj">
+      <Project>{b4ba9c34-91c3-4052-8f5f-7eef225d437e}</Project>
+      <Name>Wave16</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

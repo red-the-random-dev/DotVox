@@ -77,12 +77,12 @@ namespace DotVox.Voxel
 					}
 					Char second = args[0][i+1];
 					String phoneme = "" + first + second;
-					TactUnit t = new TactUnit(Phonemes.Get(phoneme, key, keyOctave, 96, 44100), (Phonemes.IsVowel(phoneme) ? DefaultVowelLength : DefaultVowelLength/4));
+					TactUnit t = new TactUnit(phoneme, key, keyOctave, (Phonemes.IsVowel(phoneme) ? DefaultVowelLength : DefaultVowelLength/4), 44100, 96);
 					t.BeginningOffset = plusTime;
 					plusTime += t.PlayTime;
 					tacts.Add(t);
 				}
-				Sequencer sq = new Sequencer(1, 44100);
+				Sequencer sq = new Sequencer(1, 8000);
 				
 				for (int i = 0; i < tacts.Count; i++)
 				{

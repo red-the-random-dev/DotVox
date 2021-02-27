@@ -44,6 +44,9 @@ namespace DotVox.Wave
 	[Serializable]
 	public class Sequencer : ITimedWaveArray, IWaveArrayExtract
 	{
+		public Boolean Edited { get; private set; }
+		public Boolean Sealed { get; private set; }
+		
 		/// <summary>
 		/// Resembles read-only stream with sequencer's data.
 		/// </summary>
@@ -156,7 +159,8 @@ namespace DotVox.Wave
 			}
 		}
 		
-		List<Byte[]> Track = new List<Byte[]>();
+		List<List<Byte>> Track = new List<List<Byte>>();
+		List<Byte[]> SecondaryTrackBuffer = new List<Byte[]>();
 		public readonly UInt32 SampleRate;
 		public readonly UInt16 ChannelAmount;
 		
@@ -180,7 +184,16 @@ namespace DotVox.Wave
 		{
 			get
 			{
-				return Track.Count;
+				if (Sealed)
+				{
+					return SecondaryTrackBuffer.Count;
+				}
+				Int32 y = 0;
+				foreach (List<Byte> x in Track)
+				{
+					y = Math.Max(y, x.Count);
+				}
+				return y;
 			}
 		}
 		
@@ -211,18 +224,47 @@ namespace DotVox.Wave
 				{
 					throw new FieldAccessException("Referred sequencer is empty.");
 				}
-				return Track[((Int32) Math.Round(TimeStamp / DeltaTime)) % Track.Count];
+				if (Edited)
+				{
+					RebuildWaveform();
+				}
+				return SecondaryTrackBuffer[((Int32) Math.Round(TimeStamp / DeltaTime)) % Track.Count];
 			}
 		}
 		
 		public Sequencer(UInt16 channelAmount, UInt32 sampleRate = 44100)
 		{
+			for (Int32 i = 0; i < channelAmount; i++)
+			{
+				Track.Add(new List<byte>());
+			}
+			
+			Sealed = false;
+			Edited = false;
 			SampleRate = sampleRate;
 			ChannelAmount = channelAmount;
 		}
 		
+		/// <summary>
+		/// Locks sequencer from further editing and frees up primary track buffer, making it easier for further reading.
+		/// </summary>
+		public void Seal()
+		{
+			RebuildWaveform();
+			foreach (List<Byte> a in Track)
+			{
+				a.Clear();
+			}
+			Track.Clear();
+			Sealed = true;
+		}
+		
 		public void Push(ITimedWave i, Double time)
 		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
 			if (ChannelAmount != 1)
 			{
 				throw new ArgumentException("Used sequencer instance does not support single-channel inputs.");
@@ -230,12 +272,43 @@ namespace DotVox.Wave
 			
 			for (Double x = 0; x < time; x += DeltaTime)
 			{
-				Track.Add(new Byte[] {i[x]});
+				Track[0].Add(i[x]);
 			}
+			Edited = true;
+		}
+		
+		public void Push(ITimedWave i, Double time, UInt16 channelNumber)
+		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
+			for (Double x = 0; x < time; x += DeltaTime)
+			{
+				Track[channelNumber].Add(i[x]);
+			}
+			Edited = true;
+		}
+		
+		public void Snap()
+		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
+			foreach (List<Byte> n in Track)
+			{
+				for (int i = n.Count; i < Length; i++)
+				{
+					n.Add(128);
+				}
+			}
+			RebuildWaveform();
 		}
 		
 		public void Push(ITimedWave[] i, Double Time)
 		{
+			Snap();
 			if (i.Length != ChannelAmount)
 			{
 				throw new ArgumentException("Mismatch of input array length and channel amount.");
@@ -248,12 +321,37 @@ namespace DotVox.Wave
 				{
 					newBuffer[j] = i[j][x];
 				}
-				Track.Add(newBuffer);
+				for (int j = 0; j < newBuffer.Length; j++)
+				{
+					Track[j].Add(newBuffer[j]);
+				}
 			}
+			Edited = true;
+		}
+		
+		public void Push(IWaveExtract i, UInt16 channel)
+		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
+			if (!i.Blank)
+			{
+				Push(i.Wave, i.PlayTime, channel);
+			}
+			else
+			{
+				Skip(i.PlayTime, channel);
+			}
+			Edited = true;
 		}
 		
 		public void Push(IWaveExtract i)
 		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
 			if (!i.Blank)
 			{
 				Push(i.Wave, i.PlayTime);
@@ -262,16 +360,21 @@ namespace DotVox.Wave
 			{
 				Skip(i.PlayTime);
 			}
+			Edited = true;
 		}
 		
 		public void Push(IWaveArrayExtract i)
 		{
 			Push(i.WaveArray, i.PlayTime);
+			Edited = true;
 		}
 		
 		public void Push(ITimedWaveArray i, Double Time)
 		{
-			
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
 			for (Double x = 0; x < Time; x += DeltaTime)
 			{
 				Byte[] newBuffer = i[x];
@@ -279,47 +382,136 @@ namespace DotVox.Wave
 				{
 					throw new ArgumentException("Attempted to push data from source with different channel amount.");
 				}
-				
-				Track.Add(newBuffer);
+				for (int a = 0; a < ChannelAmount; a++)
+				{
+					Track[a].Add(newBuffer[a]);
+				}
 			}
+			Edited = true;
 		}
 		
 		public void Push(Byte i)
 		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
 			if (ChannelAmount != 1)
 			{
 				throw new ArgumentException("Used sequencer instance does not support single-channel inputs.");
 			}
 			
-			Track.Add(new byte[] {i});
+			Track[0].Add(i);
+			Edited = true;
+		}
+		
+		public void Push(Byte i, UInt16 channel)
+		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
+			
+			Track[channel].Add(i);
+			Edited = true;
 		}
 		
 		public void Push(Byte[] i)
 		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
 			if (i.Length != ChannelAmount)
 			{
 				throw new ArgumentException("Mismatch of input array length and channel amount.");
 			}
-			
-			Track.Add(i);
+			for (int x = 0; x < ChannelAmount; x++)
+			{
+				Track[x].Add(i[x]);
+			}
+			Edited = true;
 		}
 		
 		public void Skip(Double Time)
 		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
 			for (Double x = 0; x < Time; x += DeltaTime)
 			{
-				Byte[] newBuffer = new Byte[ChannelAmount];
-				for (int i = 0; i < newBuffer.Length; i++)
+				for (int i = 0; i < ChannelAmount; i++)
 				{
-					newBuffer[i] = 128;
+					Track[i].Add(128);
 				}
-				Track.Add(newBuffer);
 			}
+			Edited = true;
 		}
 		
+		public void Skip(Double Time, UInt16 channel)
+		{
+			if (Sealed)
+			{
+				throw new FieldAccessException("Attempt to push sequence into sealed sequencer.");
+			}
+			for (Double x = 0; x < Time; x += DeltaTime)
+			{
+				Track[channel].Add(128);
+			}
+			Edited = true;
+		}
+		
+		/// <summary>
+		/// Rebuild inner secondary buffer.
+		/// </summary>
+		public void RebuildWaveform()
+		{
+			if (Sealed)
+			{
+				return;
+			}
+			SecondaryTrackBuffer.Clear();
+			for (Int32 x = 0; x < Length; x++)
+			{
+				Byte[] AdderBuffer = new Byte[ChannelAmount];
+				for (Int32 i = 0; i < ChannelAmount; i++)
+				{
+					if (Track[i].Count < Length && x >= Track[i].Count)
+					{
+						AdderBuffer[i] = 128;
+					}
+					else
+					{
+						AdderBuffer[i] = Track[i][x];
+					}
+				}
+				SecondaryTrackBuffer.Add(AdderBuffer);
+			}
+			Edited = false;
+		}
+		
+		/// <summary>
+		/// Forces object to rebuild secondary waveform and unload it as array of bytes.
+		/// </summary>
+		/// <returns></returns>
 		public Byte[][] Unload()
 		{
-			return Track.ToArray();
+			if (Edited)
+			{
+				RebuildWaveform();
+			}
+			
+			return SecondaryTrackBuffer.ToArray();
+		}
+		
+		/// <summary>
+		/// Unloads secondary buffer's version since last call of Snap() or Unload() method.
+		/// </summary>
+		/// <returns></returns>
+		public Byte[][] SoftUnload()
+		{
+			return SecondaryTrackBuffer.ToArray();
 		}
 	}
 }

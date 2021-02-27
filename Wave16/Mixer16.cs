@@ -44,7 +44,6 @@ namespace DotVox.Wave16
 				}
 				
 				Sum /= ConvertableArray.Length;
-				Sum %= 256;
 				return ((Int16) Sum);
 			}
 		}

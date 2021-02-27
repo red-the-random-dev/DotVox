@@ -7,12 +7,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("DotVox Wave Library [16-bit]")]
-[assembly: AssemblyDescription ("Library designed for generating and modifying mathematic 16-bit waves, as well as dumping wave sequences into files.")]
+[assembly: AssemblyTitle ("DotVox Riffs")]
+[assembly: AssemblyDescription ("Library for synthesis of 8-bit music samples.")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("red-the-random-dev")]
+[assembly: AssemblyCompany ("")]
 [assembly: AssemblyProduct ("DotVox")]
-[assembly: AssemblyCopyright ("(C) 2021 red-the-random-dev")]
+[assembly: AssemblyCopyright ("(C) 2021 red-the-random-guy")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 // This sets the default COM visibility of types in the assembly to invisible.
@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 // Build Numbers by using the '*' as shown below:
 [assembly: AssemblyVersion ("0.4.1")]
 [assembly: AssemblyFileVersion ("0.4.1")]
-[assembly: Guid ("817ee204-ebc7-4c68-8e18-57ce8e7bbffb")]
+[assembly: Guid ("7b60e882-3645-4aac-887a-8b8d16448ccc")]
